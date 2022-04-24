@@ -10,10 +10,10 @@ namespace Client.Api.repository
 {
     public interface IClientRepository
     {
-        Task<GenericResponse<ClientModel>> Add(ClientRequestModel acc);
-        Task<GenericResponse<ClientModel>> Get(int AccountId);
-        Task<GenericResponse> Delete(int AccountId);
-        Task<GenericResponse<ClientModel>> Modify(ClientModifyModel acc);
+        Task<GenericResponse<ClientModel>> Add(ClientRequestModel Client);
+        Task<GenericResponse<ClientModel>> Get(int Id);
+        Task<GenericResponse> Delete(int Id);
+        Task<GenericResponse<ClientModel>> Modify(ClientModifyModel Client);
     }
     public class ClientRepository : IClientRepository
     {
@@ -24,29 +24,41 @@ namespace Client.Api.repository
         }
 
 
-        public async Task<GenericResponse<ClientModel>> Add(ClientRequestModel account)
+        public async Task<GenericResponse<ClientModel>> Add(ClientRequestModel client)
         {
             try
             {
-                var _client = new ClientModel
+                var clientX = await Db.Clients.FirstOrDefaultAsync(cli => cli.IdCard.Equals(client.IdCard) && cli.Status);
+                if (clientX == null)
                 {
-                    IdCard = account.IdCard,
-                    Name = account.Name,
-                    Genre = account.Genre,
-                    Age = account.Age,
-                    Direction = account.Direction,
-                    Phone = account.Phone,
-                    Password = account.Password,
-                    Status = true
-                };
-                await Db.Clients.AddAsync(_client);
-                await Db.SaveChangesAsync();
-                return new GenericResponse<ClientModel>
+                    var _client = new ClientModel
+                    {
+                        IdCard = client.IdCard,
+                        Name = client.Name,
+                        Genre = client.Genre,
+                        Age = client.Age,
+                        Direction = client.Direction,
+                        Phone = client.Phone,
+                        Password = client.Password,
+                        Status = true
+                    };
+                    await Db.Clients.AddAsync(_client);
+                    await Db.SaveChangesAsync();
+                    return new GenericResponse<ClientModel>
+                    {
+                        Message = "Success",
+                        Result = _client,
+                        Success = true
+                    };
+                }
+                else
                 {
-                    Message = "Success",
-                    Result = _client,
-                    Success = true
-                };
+                    return new GenericResponse<ClientModel>
+                    {
+                        Message="Identification card already exists"
+                    };
+                }
+                
             }
             catch (System.Exception ex)
             {

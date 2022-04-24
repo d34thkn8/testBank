@@ -27,22 +27,34 @@ namespace Account.Api.repository
         {
             try
             {
-                var _acc = new AccountModel
+                var ac = await Db.Accounts.FirstOrDefaultAsync(ac => ac.AccountNumber.Equals(account.AccountNumber) && ac.Status);
+                if(ac == null)
                 {
-                    AccountNumber = account.AccountNumber,
-                    AccountType = account.AccountType,
-                    Balance = account.Balance,
-                    ClientId = account.ClientId,
-                    Status=true
-                };
-                await Db.Accounts.AddAsync(_acc);
-                await Db.SaveChangesAsync();
-                return new GenericResponse<AccountModel>
+                    var _acc = new AccountModel
+                    {
+                        AccountNumber = account.AccountNumber,
+                        AccountType = account.AccountType,
+                        Balance = account.Balance,
+                        ClientId = account.ClientId,
+                        Status = true
+                    };
+                    await Db.Accounts.AddAsync(_acc);
+                    await Db.SaveChangesAsync();
+                    return new GenericResponse<AccountModel>
+                    {
+                        Message = "Success",
+                        Result = _acc,
+                        Success = true
+                    };
+                }
+                else
                 {
-                    Message = "Success",
-                    Result = _acc,
-                    Success = true
-                };
+                    return new GenericResponse<AccountModel>
+                    {
+                        Message = "Account Number already exists"
+                    };
+                }
+                
             }
             catch (System.Exception ex)
             {
