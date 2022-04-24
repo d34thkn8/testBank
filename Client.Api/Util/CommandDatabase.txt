@@ -1,0 +1,4 @@
+﻿
+Comando       nombresMigracion    Cuando se tiene varios contexto de base de datos se debe especificar el context sino se omite cuando se tiene una 
+Add-Migration initial             -Context ExampleDatabase => Crear una migracion y crear las respectivas tablas
+update-database -Context ExampleDatabase       => Actualizar las tablas creadas 
